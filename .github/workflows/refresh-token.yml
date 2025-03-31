@@ -42,7 +42,7 @@ jobs:
           echo "::set-output name=new_refresh_token::$NEW_REFRESH_TOKEN"
 
       - name: Update TRAKT_ACCESS_TOKEN secret
-        uses: peter-evans/create-or-update-secret@v2
+        uses: peter-evans/create-or-update-secret@v2.2.0
         with:
           token: ${{ secrets.REPO_ADMIN_TOKEN }}
           secret: TRAKT_ACCESS_TOKEN
