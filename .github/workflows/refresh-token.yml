@@ -37,7 +37,7 @@ jobs:
           NEW_REFRESH_TOKEN=$(jq -r '.refresh_token' tokens.json)
           echo "Nuovo Access Token: $NEW_ACCESS_TOKEN"
           echo "Nuovo Refresh Token: $NEW_REFRESH_TOKEN"
-          echo "::set-output name=new_access_token::$NEW_ACCESS_TOKEN"
+          echo "new_access_token=$NEW_ACCESS_TOKEN" >> $GITHUB_OUTPUT
           echo "::set-output name=new_refresh_token::$NEW_REFRESH_TOKEN"
 
       - name: Update TRAKT_ACCESS_TOKEN secret using GitHub CLI
