@@ -15,7 +15,9 @@ headers = {
 # Recupera tutti i playback attuali
 response = requests.get('https://api.trakt.tv/sync/playback', headers=headers)
 if response.status_code != 200:
-    print("Errore nel recupero dei playback:", response.text)
+    print("Errore nel recupero dei playback:")
+    print("Status Code:", response.status_code)
+    print("Response:", response.text)
     exit(1)
 
 playbacks = response.json()
