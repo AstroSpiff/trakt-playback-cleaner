@@ -2,7 +2,7 @@ name: Refresh Trakt Token
 
 on:
   schedule:
-    - cron: '0 */6 * * *'  # Esegue ogni 6 ore; modifica se necessario
+    - cron: '0 */12 * * *'  # Ogni 12 ore; modifica se necessario
   workflow_dispatch:
 
 jobs:
@@ -37,8 +37,9 @@ jobs:
           NEW_REFRESH_TOKEN=$(jq -r '.refresh_token' tokens.json)
           echo "Nuovo Access Token: $NEW_ACCESS_TOKEN"
           echo "Nuovo Refresh Token: $NEW_REFRESH_TOKEN"
+          # Imposta gli output tramite il file d'ambiente
           echo "new_access_token=$NEW_ACCESS_TOKEN" >> $GITHUB_OUTPUT
-          echo "::set-output name=new_refresh_token::$NEW_REFRESH_TOKEN"
+          echo "new_refresh_token=$NEW_REFRESH_TOKEN" >> $GITHUB_OUTPUT
 
       - name: Update TRAKT_ACCESS_TOKEN secret using GitHub CLI
         env:
