@@ -2,12 +2,16 @@ name: Refresh Trakt Token
 
 on:
   schedule:
-    - cron: '0 */6 * * *'  # Ogni 6 ore, ad esempio
+    - cron: '0 */6 * * *'  # Ogni 6 ore (modifica in base alle tue esigenze)
   workflow_dispatch:
 
 jobs:
   refresh:
     runs-on: ubuntu-latest
+
+    outputs:
+      new_access_token: ${{ steps.get-tokens.outputs.new_access_token }}
+      new_refresh_token: ${{ steps.get-tokens.outputs.new_refresh_token }}
 
     steps:
       - name: Checkout repository
@@ -21,9 +25,32 @@ jobs:
       - name: Install dependencies
         run: pip install requests
 
-      - name: Run refresh token script
+      - name: Get new tokens
+        id: get-tokens
         env:
           TRAKT_CLIENT_ID: ${{ secrets.TRAKT_CLIENT_ID }}
           TRAKT_CLIENT_SECRET: ${{ secrets.TRAKT_CLIENT_SECRET }}
           TRAKT_REFRESH_TOKEN: ${{ secrets.TRAKT_REFRESH_TOKEN }}
-        run: python refresh_token.py
+        run: |
+          python refresh_token.py > tokens.json
+          NEW_ACCESS_TOKEN=$(jq -r '.access_token' tokens.json)
+          NEW_REFRESH_TOKEN=$(jq -r '.refresh_token' tokens.json)
+          echo "Nuovo Access Token: $NEW_ACCESS_TOKEN"
+          echo "Nuovo Refresh Token: $NEW_REFRESH_TOKEN"
+          # Imposta gli output per il job
+          echo "::set-output name=new_access_token::$NEW_ACCESS_TOKEN"
+          echo "::set-output name=new_refresh_token::$NEW_REFRESH_TOKEN"
+
+      - name: Update TRAKT_ACCESS_TOKEN secret
+        uses: peter-evans/create-or-update-secret@v2
+        with:
+          token: ${{ secrets.REPO_ADMIN_TOKEN }}
+          secret: TRAKT_ACCESS_TOKEN
+          value: ${{ steps.get-tokens.outputs.new_access_token }}
+
+      - name: Update TRAKT_REFRESH_TOKEN secret
+        uses: peter-evans/create-or-update-secret@v2
+        with:
+          token: ${{ secrets.REPO_ADMIN_TOKEN }}
+          secret: TRAKT_REFRESH_TOKEN
+          value: ${{ steps.get-tokens.outputs.new_refresh_token }}
