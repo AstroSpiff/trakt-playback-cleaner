@@ -17,9 +17,8 @@ payload = {
 response = requests.post("https://api.trakt.tv/oauth/token", json=payload)
 
 if response.status_code == 200:
-    data = response.json()
-    # Stampa solo il JSON in output
-    print(json.dumps(data))
+    # Stampa solo il JSON, senza testo aggiuntivo
+    print(json.dumps(response.json()))
 else:
     error_data = {
         "error": response.text,
