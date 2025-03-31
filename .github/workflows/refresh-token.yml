@@ -41,7 +41,7 @@ jobs:
           echo "::set-output name=new_refresh_token::$NEW_REFRESH_TOKEN"
 
       - name: Update TRAKT_ACCESS_TOKEN secret
-        uses: devops-infra/action-update-secret@v1
+        uses: devops-infra/action-update-secret@v1.2.0
         with:
           secret_name: TRAKT_ACCESS_TOKEN
           secret_value: ${{ steps.get-tokens.outputs.new_access_token }}
@@ -49,7 +49,7 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.REPO_ADMIN_TOKEN }}
 
       - name: Update TRAKT_REFRESH_TOKEN secret
-        uses: devops-infra/action-update-secret@v1
+        uses: devops-infra/action-update-secret@v1.2.0
         with:
           secret_name: TRAKT_REFRESH_TOKEN
           secret_value: ${{ steps.get-tokens.outputs.new_refresh_token }}
