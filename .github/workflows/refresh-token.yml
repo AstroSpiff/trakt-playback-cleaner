@@ -49,7 +49,7 @@ jobs:
           value: ${{ steps.get-tokens.outputs.new_access_token }}
 
       - name: Update TRAKT_REFRESH_TOKEN secret
-        uses: peter-evans/create-or-update-secret@v2
+        uses: peter-evans/create-or-update-secret@v2.2.0
         with:
           token: ${{ secrets.REPO_ADMIN_TOKEN }}
           secret: TRAKT_REFRESH_TOKEN
