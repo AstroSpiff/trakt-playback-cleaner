@@ -2,13 +2,12 @@ name: Refresh Trakt Token
 
 on:
   schedule:
-    - cron: '0 */6 * * *'  # Esegue ogni 6 ore
+    - cron: '0 */6 * * *'  # Ogni 6 ore, modifica se necessario
   workflow_dispatch:
 
 jobs:
   refresh:
     runs-on: ubuntu-latest
-
     outputs:
       new_access_token: ${{ steps.get-tokens.outputs.new_access_token }}
       new_refresh_token: ${{ steps.get-tokens.outputs.new_refresh_token }}
@@ -42,17 +41,17 @@ jobs:
           echo "::set-output name=new_refresh_token::$NEW_REFRESH_TOKEN"
 
       - name: Update TRAKT_ACCESS_TOKEN secret
-        uses: andymckay/gh-update-secret@v1
+        uses: devops-infra/action-update-secret@v1
         with:
-          secret-name: TRAKT_ACCESS_TOKEN
-          secret-value: ${{ steps.get-tokens.outputs.new_access_token }}
+          secret_name: TRAKT_ACCESS_TOKEN
+          secret_value: ${{ steps.get-tokens.outputs.new_access_token }}
         env:
           GITHUB_TOKEN: ${{ secrets.REPO_ADMIN_TOKEN }}
 
       - name: Update TRAKT_REFRESH_TOKEN secret
-        uses: andymckay/gh-update-secret@v1
+        uses: devops-infra/action-update-secret@v1
         with:
-          secret-name: TRAKT_REFRESH_TOKEN
-          secret-value: ${{ steps.get-tokens.outputs.new_refresh_token }}
+          secret_name: TRAKT_REFRESH_TOKEN
+          secret_value: ${{ steps.get-tokens.outputs.new_refresh_token }}
         env:
           GITHUB_TOKEN: ${{ secrets.REPO_ADMIN_TOKEN }}
