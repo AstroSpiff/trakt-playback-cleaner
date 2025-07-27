@@ -2,7 +2,7 @@ name: Clear Trakt Playback Status
 
 on:
   schedule:
-    - cron: '*/10 * * * *'  # Esegue lo script ogni 10 minuti
+    - cron: '*/30 * * * *'  # Esegue lo script ogni 10 minuti
   workflow_dispatch:  # Permette di eseguire manualmente il workflow se necessario
 
 jobs:
