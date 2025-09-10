@@ -12,7 +12,7 @@ headers = {
     'trakt-api-key': CLIENT_ID
 }
 
-# Recupera tutti i playback attuali
+# Recupera tutti i playback attuali...
 response = requests.get('https://api.trakt.tv/sync/playback', headers=headers)
 if response.status_code != 200:
     print("Errore nel recupero dei playback:")
@@ -22,7 +22,7 @@ if response.status_code != 200:
 
 playbacks = response.json()
 
-# Per ogni playback prova a cancellarlo
+# Per ogni playback prova a cancellarlo...
 for playback in playbacks:
     playback_id = playback['id']
     del_response = requests.delete(f'https://api.trakt.tv/sync/playback/{playback_id}', headers=headers)
