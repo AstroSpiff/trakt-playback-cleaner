@@ -32,18 +32,8 @@ payload = {
 
 def output_token_json(data):
     output_json = json.dumps(data)
-    if os.getenv("GITHUB_ACTIONS") == "true" and os.getenv("GITHUB_OUTPUT"):
-        for key in ("access_token", "refresh_token"):
-            token_value = data.get(key)
-            if token_value:
-                print(f"::add-mask::{token_value}")
-        with open(os.environ["GITHUB_OUTPUT"], "a", encoding="utf-8") as handle:
-            handle.write("token_json<<EOF\n")
-            handle.write(output_json)
-            handle.write("\nEOF\n")
-        print("Token JSON written to GITHUB_OUTPUT.")
-    else:
-        print(output_json)
+    # Stampa sempre il JSON su stdout per il workflow
+    print(output_json)
 
 
 try:
