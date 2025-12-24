@@ -5,6 +5,12 @@ on:
   schedule:
     - cron: "*/30 * * * *"
 
+# Previene esecuzioni multiple simultanee che potrebbero causare
+# problemi con la rotazione del refresh token
+concurrency:
+  group: trakt-playback-cleaner
+  cancel-in-progress: false
+
 jobs:
   clear-playback:
     runs-on: ubuntu-latest
@@ -25,25 +31,22 @@ jobs:
           TRAKT_REFRESH_TOKEN: ${{ secrets.TRAKT_REFRESH_TOKEN }}
           TRAKT_REDIRECT_URI: ${{ secrets.TRAKT_REDIRECT_URI }}
         run: python refresh_token.py
-      # Commento: l'aggiornamento automatico del refresh token è disabilitato
-      # perché Trakt sembra avere problemi con la rotazione dei token.
-      # Il refresh token originale continuerà a funzionare per 3 mesi.
-      # - name: Update refresh token secret
-      #   if: ${{ steps.refresh.outputs.refresh_token != '' }}
-      #   env:
-      #     GH_TOKEN: ${{ secrets.GH_PAT }}
-      #     NEW_REFRESH_TOKEN: ${{ steps.refresh.outputs.refresh_token }}
-      #   run: |
-      #     if [ -z "$GH_TOKEN" ]; then
-      #       echo "Missing GH_PAT secret for updating refresh token." >&2
-      #       exit 1
-      #     fi
-      #     if [ -z "$NEW_REFRESH_TOKEN" ]; then
-      #       echo "Missing refresh token output." >&2
-      #       exit 1
-      #     fi
-      #     printf '%s' "$NEW_REFRESH_TOKEN" | gh secret set TRAKT_REFRESH_TOKEN --app actions --repo "$GITHUB_REPOSITORY" --body -
-      #     echo "Updated TRAKT_REFRESH_TOKEN secret."
+      - name: Update refresh token secret
+        if: ${{ steps.refresh.outputs.refresh_token != '' }}
+        env:
+          GH_TOKEN: ${{ secrets.GH_PAT }}
+          NEW_REFRESH_TOKEN: ${{ steps.refresh.outputs.refresh_token }}
+        run: |
+          if [ -z "$GH_TOKEN" ]; then
+            echo "Missing GH_PAT secret for updating refresh token." >&2
+            exit 1
+          fi
+          if [ -z "$NEW_REFRESH_TOKEN" ]; then
+            echo "Missing refresh token output." >&2
+            exit 1
+          fi
+          printf '%s' "$NEW_REFRESH_TOKEN" | gh secret set TRAKT_REFRESH_TOKEN --app actions --repo "$GITHUB_REPOSITORY" --body -
+          echo "Updated TRAKT_REFRESH_TOKEN secret."
       - name: Log token expiry
         env:
           TOKEN_JSON: ${{ steps.refresh.outputs.token_json }}
