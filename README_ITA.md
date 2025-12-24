@@ -1,8 +1,5 @@
-<<<<<<< ours
 [🇬🇧 ENG](README.md) | [🇮🇹 ITA](README_ITA.md)
 
-=======
->>>>>>> theirs
 # Trakt Playback Cleaner
 
 Automatizza la pulizia dei playback su Trakt tramite GitHub Actions. Il sistema gestisce automaticamente il refresh dei token OAuth2 e la pulizia periodica dei playback in corso.

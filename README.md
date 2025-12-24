@@ -1,8 +1,4 @@
-<<<<<<< ours
 [🇬🇧 ENG](README.md) | [🇮🇹 ITA](README_ITA.md)
-=======
-[🇬🇧 English](#) | [🇮🇹 Italiano](README_ITA.md)
->>>>>>> theirs
 
 # Trakt Playback Cleaner
 
