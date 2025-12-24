@@ -1,157 +1,163 @@
+<<<<<<< ours
+[🇬🇧 ENG](README.md) | [🇮🇹 ITA](README_ITA.md)
+=======
+[🇬🇧 English](#) | [🇮🇹 Italiano](README_ITA.md)
+>>>>>>> theirs
+
 # Trakt Playback Cleaner
 
-Automatizza la pulizia dei playback su Trakt tramite GitHub Actions. Il sistema gestisce automaticamente il refresh dei token OAuth2 e la pulizia periodica dei playback in corso.
+Automate Trakt playback cleanup via GitHub Actions. The system automatically handles OAuth2 token refresh and periodic playback cleanup.
 
-## Caratteristiche
+## Features
 
-- 🔄 **Auto-refresh token**: rinnovo automatico ogni 12 ore
-- 🧹 **Pulizia automatica**: rimozione playback ogni 30 minuti
-- 🔐 **Sicurezza**: token mascherati nei log, nessun dato sensibile esposto
-- ⚙️ **Zero manutenzione**: completamente automatizzato
+- 🔄 **Auto-refresh tokens**: automatic renewal every 12 hours
+- 🧹 **Automatic cleanup**: playback removal every 30 minutes
+- 🔐 **Security**: tokens masked in logs, no sensitive data exposed
+- ⚙️ **Zero maintenance**: fully automated
 
-## Requisiti
+## Requirements
 
-- Un account GitHub (per GitHub Actions)
-- Un'app Trakt con permessi `sync`
-- Python 3.11+ (solo per uso locale)
+- A GitHub account (for GitHub Actions)
+- A Trakt app with `sync` permissions
+- Python 3.11+ (for local use only)
 
-## Configurazione rapida
+## Quick Setup
 
-### 1. Crea un'app Trakt
+### 1. Create a Trakt App
 
-1. Vai su https://trakt.tv/oauth/applications
-2. Clicca "New Application"
-3. Compila i campi richiesti:
+1. Go to https://trakt.tv/oauth/applications
+2. Click "New Application"
+3. Fill in the required fields:
    - **Redirect URI**: `urn:ietf:wg:oauth:2.0:oob`
-   - **Permissions**: seleziona `sync`
-4. Salva l'applicazione e annota `Client ID` e `Client Secret`
+   - **Permissions**: select `sync`
+4. Save the application and note down `Client ID` and `Client Secret`
 
-### 2. Ottieni il refresh token
+### 2. Get the Refresh Token
 
-Apri nel browser (sostituisci `TUO_CLIENT_ID` con il tuo Client ID):
+Open in your browser (replace `YOUR_CLIENT_ID` with your Client ID):
 
 ```
-https://trakt.tv/oauth/authorize?response_type=code&client_id=TUO_CLIENT_ID&redirect_uri=urn:ietf:wg:oauth:2.0:oob&scope=sync&state=xyz
+https://trakt.tv/oauth/authorize?response_type=code&client_id=YOUR_CLIENT_ID&redirect_uri=urn:ietf:wg:oauth:2.0:oob&scope=sync&state=xyz
 ```
 
-Autorizza l'app e copia il **code** che appare.
+Authorize the app and copy the **code** that appears.
 
-Poi esegui questo comando (sostituisci i valori):
+Then run this command (replace the values):
 
 ```bash
 curl -s -X POST https://api.trakt.tv/oauth/token \
   -H "Content-Type: application/json" \
   -d '{
-    "code":"IL_CODE_COPIATO",
-    "client_id":"TUO_CLIENT_ID",
-    "client_secret":"TUO_CLIENT_SECRET",
+    "code":"THE_CODE_YOU_COPIED",
+    "client_id":"YOUR_CLIENT_ID",
+    "client_secret":"YOUR_CLIENT_SECRET",
     "redirect_uri":"urn:ietf:wg:oauth:2.0:oob",
     "grant_type":"authorization_code"
   }'
 ```
 
-Dalla risposta JSON, copia il valore di `refresh_token`.
+From the JSON response, copy the `refresh_token` value.
 
-### 3. Crea un GitHub Personal Access Token (PAT)
+### 3. Create a GitHub Personal Access Token (PAT)
 
-Il PAT è necessario per permettere ai workflow di aggiornare automaticamente i secrets.
+The PAT is required to allow workflows to automatically update secrets.
 
-1. Vai su GitHub → Settings → Developer settings → Personal access tokens → Tokens (classic)
-2. Clicca "Generate new token (classic)"
-3. Assegna un nome (es. "Trakt Playback Cleaner")
-4. Seleziona lo scope `repo` (accesso completo ai repository privati)
-5. Clicca "Generate token" e copia il token generato
+1. Go to GitHub → Settings → Developer settings → Personal access tokens → Tokens (classic)
+2. Click "Generate new token (classic)"
+3. Assign a name (e.g., "Trakt Playback Cleaner")
+4. Select the `repo` scope (full access to private repositories)
+5. Click "Generate token" and copy the generated token
 
-**Oppure** usa un Fine-grained token:
-1. Vai su Personal access tokens → Fine-grained tokens
-2. Crea un token con accesso al repository specifico
-3. Permessi richiesti: "Secrets" → Read and write
+**Or** use a Fine-grained token:
+1. Go to Personal access tokens → Fine-grained tokens
+2. Create a token with access to the specific repository
+3. Required permissions: "Secrets" → Read and write
 
-### 4. Configura i secrets su GitHub
+### 4. Configure Secrets on GitHub
 
-1. Apri il tuo repository su GitHub
-2. Vai su **Settings** → **Secrets and variables** → **Actions**
-3. Clicca **New repository secret** e aggiungi i seguenti secrets:
+1. Open your repository on GitHub
+2. Go to **Settings** → **Secrets and variables** → **Actions**
+3. Click **New repository secret** and add the following secrets:
 
-| Nome | Valore | Descrizione |
-|------|--------|-------------|
-| `TRAKT_CLIENT_ID` | Il tuo Client ID | ID dell'app Trakt |
-| `TRAKT_CLIENT_SECRET` | Il tuo Client Secret | Secret dell'app Trakt |
-| `TRAKT_REFRESH_TOKEN` | Il refresh token ottenuto | Token per rinnovare l'accesso |
-| `GH_PAT` | Il tuo Personal Access Token | Permette l'aggiornamento automatico dei secrets |
+| Name | Value | Description |
+|------|-------|-------------|
+| `TRAKT_CLIENT_ID` | Your Client ID | Trakt app ID |
+| `TRAKT_CLIENT_SECRET` | Your Client Secret | Trakt app secret |
+| `TRAKT_REFRESH_TOKEN` | The refresh token obtained | Token to renew access |
+| `GH_PAT` | Your Personal Access Token | Allows automatic secret updates |
 
-**Nota**: Non è necessario creare manualmente `TRAKT_ACCESS_TOKEN` - verrà generato automaticamente dal workflow "Refresh Trakt Token".
+**Note**: You don't need to manually create `TRAKT_ACCESS_TOKEN` - it will be automatically generated by the "Refresh Trakt Token" workflow.
 
-### 5. Avvia il primo refresh
+### 5. Start the First Refresh
 
-1. Vai su **Actions** nel tuo repository
-2. Seleziona il workflow **"Refresh Trakt Token"**
-3. Clicca **Run workflow** → **Run workflow**
-4. Attendi il completamento (circa 1 minuto)
+1. Go to **Actions** in your repository
+2. Select the **"Refresh Trakt Token"** workflow
+3. Click **Run workflow** → **Run workflow**
+4. Wait for completion (about 1 minute)
 
-Questo genererà e salverà automaticamente il primo `TRAKT_ACCESS_TOKEN`.
+This will generate and automatically save the first `TRAKT_ACCESS_TOKEN`.
 
-### 6. Verifica il funzionamento
+### 6. Verify Everything Works
 
-1. Esegui manualmente il workflow **"Trakt Playback Cleaner"**
-2. Controlla i log per verificare che non ci siano errori
-3. Dovresti vedere: `Nessun playback da cancellare.` (se non hai playback attivi)
+1. Manually run the **"Trakt Playback Cleaner"** workflow
+2. Check the logs to verify there are no errors
+3. You should see: `Nessun playback da cancellare.` (if you have no active playbacks)
 
-## Come funziona
+## How It Works
 
-### Workflow "Refresh Trakt Token"
+### "Refresh Trakt Token" Workflow
 
-- **Pianificazione**: ogni 12 ore (automatico)
-- **Funzione**: rinnova access e refresh token
-- **Output**: aggiorna automaticamente i secrets `TRAKT_ACCESS_TOKEN` e `TRAKT_REFRESH_TOKEN`
+- **Schedule**: every 12 hours (automatic)
+- **Function**: renews access and refresh tokens
+- **Output**: automatically updates `TRAKT_ACCESS_TOKEN` and `TRAKT_REFRESH_TOKEN` secrets
 
-Il workflow:
-1. Usa il `TRAKT_REFRESH_TOKEN` salvato per ottenere nuovi token
-2. Maschera i token nei log per sicurezza
-3. Salva i nuovi token nei secrets tramite GitHub CLI
+The workflow:
+1. Uses the saved `TRAKT_REFRESH_TOKEN` to obtain new tokens
+2. Masks tokens in logs for security
+3. Saves new tokens to secrets via GitHub CLI
 
-### Workflow "Trakt Playback Cleaner"
+### "Trakt Playback Cleaner" Workflow
 
-- **Pianificazione**: ogni 30 minuti (automatico)
-- **Funzione**: rimuove tutti i playback in corso su Trakt
-- **Output**: log del numero di playback cancellati
+- **Schedule**: every 30 minutes (automatic)
+- **Function**: removes all in-progress playbacks on Trakt
+- **Output**: log of the number of deleted playbacks
 
-Il workflow usa `TRAKT_ACCESS_TOKEN` per autenticarsi e rimuovere i playback tramite l'API `/sync/playback`.
+The workflow uses `TRAKT_ACCESS_TOKEN` to authenticate and remove playbacks via the `/sync/playback` API.
 
-## Modificare la pianificazione
+## Modify the Schedule
 
-Puoi modificare la frequenza dei workflow editando i file in `.github/workflows/`:
+You can change workflow frequency by editing files in `.github/workflows/`:
 
 **Refresh Trakt Token** (`.github/workflows/refresh-token.yml`):
 ```yaml
 schedule:
-  - cron: '0 */12 * * *'  # Ogni 12 ore
+  - cron: '0 */12 * * *'  # Every 12 hours
 ```
 
 **Trakt Playback Cleaner** (`.github/workflows/trakt-playback-cleaner.yml`):
 ```yaml
 schedule:
-  - cron: '*/30 * * * *'  # Ogni 30 minuti
+  - cron: '*/30 * * * *'  # Every 30 minutes
 ```
 
-Usa [crontab.guru](https://crontab.guru/) per creare la tua pianificazione personalizzata.
+Use [crontab.guru](https://crontab.guru/) to create your custom schedule.
 
-## Uso locale (opzionale)
+## Local Usage (Optional)
 
-Se vuoi testare gli script localmente:
+If you want to test the scripts locally:
 
-### Installazione dipendenze
+### Install Dependencies
 
 ```bash
 pip install -r requirements.txt
 ```
 
-### Refresh token manuale
+### Manual Token Refresh
 
 ```bash
-export TRAKT_CLIENT_ID="il_tuo_client_id"
-export TRAKT_CLIENT_SECRET="il_tuo_client_secret"
-export TRAKT_REFRESH_TOKEN="il_tuo_refresh_token"
+export TRAKT_CLIENT_ID="your_client_id"
+export TRAKT_CLIENT_SECRET="your_client_secret"
+export TRAKT_REFRESH_TOKEN="your_refresh_token"
 python refresh_token.py
 ```
 
@@ -160,70 +166,74 @@ Output:
 {"access_token":"...","refresh_token":"...","expires_in":7776000,...}
 ```
 
-### Pulizia playback manuale
+### Manual Playback Cleanup
 
 ```bash
-export TRAKT_CLIENT_ID="il_tuo_client_id"
-export TRAKT_ACCESS_TOKEN="access_token_dall_output_precedente"
+export TRAKT_CLIENT_ID="your_client_id"
+export TRAKT_ACCESS_TOKEN="access_token_from_previous_output"
 python clear_playback.py
 ```
 
-## Variabili di configurazione (opzionali)
+## Configuration Variables (Optional)
 
-Puoi personalizzare il comportamento tramite variabili d'ambiente:
+You can customize behavior via environment variables:
 
-| Variabile | Default | Descrizione |
-|-----------|---------|-------------|
-| `TRAKT_REQUEST_TIMEOUT` | `10` | Timeout richieste HTTP (secondi) |
-| `TRAKT_MAX_RETRIES` | `3` | Numero massimo di tentativi |
-| `TRAKT_RETRY_BASE_SECONDS` | `1` | Tempo base tra i tentativi (secondi) |
-| `TRAKT_REDIRECT_URI` | `urn:ietf:wg:oauth:2.0:oob` | Redirect URI per OAuth2 |
+| Variable | Default | Description |
+|----------|---------|-------------|
+| `TRAKT_REQUEST_TIMEOUT` | `10` | HTTP request timeout (seconds) |
+| `TRAKT_MAX_RETRIES` | `3` | Maximum number of retries |
+| `TRAKT_RETRY_BASE_SECONDS` | `1` | Base time between retries (seconds) |
+| `TRAKT_REDIRECT_URI` | `urn:ietf:wg:oauth:2.0:oob` | OAuth2 redirect URI |
 
-## Risoluzione problemi
+## Troubleshooting
 
-### Errore `invalid_grant`
+### `invalid_grant` Error
 
-**Causa**: Il refresh token è scaduto, revocato o non valido.
+**Cause**: The refresh token is expired, revoked, or invalid.
 
-**Soluzione**:
-1. Revoca l'accesso all'app su https://trakt.tv/oauth/authorized_applications
-2. Rigenera un nuovo refresh token (vedi sezione "Ottieni il refresh token")
-3. Aggiorna il secret `TRAKT_REFRESH_TOKEN` su GitHub
-4. Esegui manualmente "Refresh Trakt Token"
+**Solution**:
+1. Revoke app access at https://trakt.tv/oauth/authorized_applications
+2. Generate a new refresh token (see "Get the Refresh Token" section)
+3. Update the `TRAKT_REFRESH_TOKEN` secret on GitHub
+4. Manually run "Refresh Trakt Token"
 
-### Errore `401 Unauthorized`
+### `401 Unauthorized` Error
 
-**Causa**: L'access token non è valido o è scaduto.
+**Cause**: The access token is invalid or expired.
 
-**Soluzione**:
-1. Esegui manualmente il workflow "Refresh Trakt Token"
-2. Verifica che il secret `TRAKT_ACCESS_TOKEN` sia stato creato
-3. Riprova "Trakt Playback Cleaner"
+**Solution**:
+1. Manually run the "Refresh Trakt Token" workflow
+2. Verify that the `TRAKT_ACCESS_TOKEN` secret was created
+3. Retry "Trakt Playback Cleaner"
 
-### Errore `redirect_uri mismatch`
+### `redirect_uri mismatch` Error
 
-**Causa**: La redirect URI non corrisponde a quella configurata nell'app Trakt.
+**Cause**: The redirect URI doesn't match the one configured in the Trakt app.
 
-**Soluzione**:
-1. Verifica che la Redirect URI nell'app Trakt sia: `urn:ietf:wg:oauth:2.0:oob`
-2. Usa la stessa URI quando generi il refresh token
+**Solution**:
+1. Verify that the Redirect URI in the Trakt app is: `urn:ietf:wg:oauth:2.0:oob`
+2. Use the same URI when generating the refresh token
 
-### I workflow non partono automaticamente
+### Workflows Don't Start Automatically
 
-**Causa**: GitHub Actions potrebbe essere disabilitato o i workflow non hanno i permessi.
+**Cause**: GitHub Actions might be disabled or workflows don't have permissions.
 
-**Soluzione**:
-1. Vai su **Settings** → **Actions** → **General**
-2. Verifica che "Allow all actions and reusable workflows" sia selezionato
-3. In "Workflow permissions", assicurati che i workflow abbiano i permessi necessari
+**Solution**:
+1. Go to **Settings** → **Actions** → **General**
+2. Verify that "Allow all actions and reusable workflows" is selected
+3. In "Workflow permissions", make sure workflows have the necessary permissions
 
-## Sicurezza
+## Security
 
-- ✅ Tutti i token sono mascherati nei log con `::add-mask::`
-- ✅ I secrets sono criptati da GitHub
-- ✅ Nessun dato sensibile viene mai committato nel repository
-- ✅ Il `GH_PAT` ha accesso solo ai secrets del repository
+- ✅ All tokens are masked in logs with `::add-mask::`
+- ✅ Secrets are encrypted by GitHub
+- ✅ No sensitive data is ever committed to the repository
+- ✅ The `GH_PAT` only has access to repository secrets
 
-## Licenza
+## License
 
-Questo progetto è fornito "as is" senza garanzie. Usalo a tuo rischio.
+This project is provided "as is" without warranties. Use at your own risk.
+
+---
+
+🇮🇹 [Versione italiana](README_ITA.md)
