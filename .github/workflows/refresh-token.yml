@@ -40,8 +40,8 @@ jobs:
             echo "Missing token outputs." >&2
             exit 1
           fi
-          printf '%s' "$NEW_ACCESS_TOKEN" | gh secret set TRAKT_ACCESS_TOKEN --app actions --repo "$GITHUB_REPOSITORY" --body -
-          printf '%s' "$NEW_REFRESH_TOKEN" | gh secret set TRAKT_REFRESH_TOKEN --app actions --repo "$GITHUB_REPOSITORY" --body -
+          echo -n "$NEW_ACCESS_TOKEN" | gh secret set TRAKT_ACCESS_TOKEN --app actions --repo "$GITHUB_REPOSITORY" --body -
+          echo -n "$NEW_REFRESH_TOKEN" | gh secret set TRAKT_REFRESH_TOKEN --app actions --repo "$GITHUB_REPOSITORY" --body -
           echo "Updated TRAKT_ACCESS_TOKEN and TRAKT_REFRESH_TOKEN secrets."
       - name: Log token expiry
         env:
