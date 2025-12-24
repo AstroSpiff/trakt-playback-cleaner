@@ -1,15 +1,15 @@
 # Trakt Playback Cleaner
 
 Questo tool pulisce i playback presenti in Trakt (endpoint `/sync/playback`).
-E utile per rimuovere rapidamente gli elementi in stato "in riproduzione".
+È utile per rimuovere rapidamente gli elementi in stato "in riproduzione".
 
 ## Requisiti
 - Python 3.11+
 - Un'app Trakt con permessi `sync`
 
 ## Configurazione GitHub Actions
-Il workflow e gia presente in `.github/workflows/trakt-playback-cleaner.yml` e
-gira ogni 30 minuti (piu l'avvio manuale).
+Il workflow è già presente in `.github/workflows/trakt-playback-cleaner.yml` e
+gira ogni 30 minuti (più l'avvio manuale).
 
 ### Secrets richiesti
 Imposta questi secrets nel repository:
@@ -21,7 +21,7 @@ Imposta questi secrets nel repository:
 ### Come ottenere un refresh token
 1) Crea o apri la tua app Trakt:
    `https://trakt.tv/oauth/applications`
-2) Imposta la Redirect URI. Per la modalita manuale usa:
+2) Imposta la Redirect URI. Per la modalità manuale usa:
    `urn:ietf:wg:oauth:2.0:oob`
 3) Ottieni un authorization code aprendo nel browser:
 
