@@ -17,6 +17,7 @@ Imposta questi secrets nel repository:
 - `TRAKT_CLIENT_SECRET`
 - `TRAKT_REFRESH_TOKEN`
 - `TRAKT_REDIRECT_URI` (opzionale, solo se non usi `urn:ietf:wg:oauth:2.0:oob`)
+- `GH_PAT` (necessario per aggiornare automaticamente `TRAKT_REFRESH_TOKEN`)
 
 ### Dove impostare i secrets su GitHub
 1) Apri il repository su GitHub.
@@ -25,6 +26,10 @@ Imposta questi secrets nel repository:
 
 Suggerimento: puoi rimuovere eventuali secrets non usati dal workflow per
 ridurre confusione e superficie di rischio.
+
+Nota su `GH_PAT`: usa un token personale con permesso di scrittura sui secrets
+del repository (PAT classico con scope `repo`, oppure fine-grained con accesso
+alla repo e permesso "Actions secrets: Read and write").
 
 ### Avvio e pianificazione del workflow
 - Avvio manuale: `Actions` → `Trakt Playback Cleaner` → `Run workflow`.
