@@ -40,9 +40,9 @@ def output_token_json(data):
                 print(f"::add-mask::{token_value}")
         with open(os.environ["GITHUB_OUTPUT"], "a", encoding="utf-8") as handle:
             access_token = data.get("access_token", "")
-            refresh_token = data.get("refresh_token", "")
+            # NON esportiamo il nuovo refresh_token per evitare problemi
+            # con la rotazione automatica. Useremo sempre lo stesso refresh token.
             handle.write(f"access_token={access_token}\n")
-            handle.write(f"refresh_token={refresh_token}\n")
             handle.write("token_json<<EOF\n")
             handle.write(output_json)
             handle.write("\nEOF\n")
