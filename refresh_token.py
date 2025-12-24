@@ -5,6 +5,7 @@ import sys
 import requests
 
 REQUEST_TIMEOUT_SECONDS = float(os.getenv("TRAKT_REQUEST_TIMEOUT", "10"))
+REDIRECT_URI = os.getenv("TRAKT_REDIRECT_URI", "urn:ietf:wg:oauth:2.0:oob")
 
 
 def require_env(name):
@@ -25,7 +26,7 @@ payload = {
     "refresh_token": CURRENT_REFRESH_TOKEN,
     "client_id": CLIENT_ID,
     "client_secret": CLIENT_SECRET,
-    "redirect_uri": "urn:ietf:wg:oauth:2.0:oob",
+    "redirect_uri": REDIRECT_URI,
     "grant_type": "refresh_token",
 }
 
@@ -38,6 +39,10 @@ def output_token_json(data):
             if token_value:
                 print(f"::add-mask::{token_value}")
         with open(os.environ["GITHUB_OUTPUT"], "a", encoding="utf-8") as handle:
+            access_token = data.get("access_token", "")
+            refresh_token = data.get("refresh_token", "")
+            handle.write(f"access_token={access_token}\n")
+            handle.write(f"refresh_token={refresh_token}\n")
             handle.write("token_json<<EOF\n")
             handle.write(output_json)
             handle.write("\nEOF\n")

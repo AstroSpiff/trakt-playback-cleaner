@@ -27,5 +27,5 @@ jobs:
       - name: Clear playback
         env:
           TRAKT_CLIENT_ID: ${{ secrets.TRAKT_CLIENT_ID }}
-          TRAKT_ACCESS_TOKEN: ${{ fromJson(steps.refresh.outputs.token_json).access_token }}
+          TRAKT_ACCESS_TOKEN: ${{ steps.refresh.outputs.access_token }}
         run: python clear_playback.py
