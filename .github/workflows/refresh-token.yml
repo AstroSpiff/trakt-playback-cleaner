@@ -35,8 +35,10 @@ jobs:
           python refresh_token.py > tokens.json
           NEW_ACCESS_TOKEN=$(jq -r '.access_token' tokens.json)
           NEW_REFRESH_TOKEN=$(jq -r '.refresh_token' tokens.json)
-          echo "Nuovo Access Token: $NEW_ACCESS_TOKEN"
-          echo "Nuovo Refresh Token: $NEW_REFRESH_TOKEN"
+          # Maschera i token nei log
+          echo "::add-mask::$NEW_ACCESS_TOKEN"
+          echo "::add-mask::$NEW_REFRESH_TOKEN"
+          echo "Nuovi token generati e mascherati con successo"
           # Imposta gli output tramite il file d'ambiente
           echo "new_access_token=$NEW_ACCESS_TOKEN" >> $GITHUB_OUTPUT
           echo "new_refresh_token=$NEW_REFRESH_TOKEN" >> $GITHUB_OUTPUT
