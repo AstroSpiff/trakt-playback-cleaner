@@ -25,6 +25,20 @@ jobs:
           TRAKT_REFRESH_TOKEN: ${{ secrets.TRAKT_REFRESH_TOKEN }}
           TRAKT_REDIRECT_URI: ${{ secrets.TRAKT_REDIRECT_URI }}
         run: python refresh_token.py
+      - name: Log token expiry
+        env:
+          TOKEN_JSON: ${{ steps.refresh.outputs.token_json }}
+        run: |
+          python - <<'PY'
+          import json
+          import os
+          token_json = os.environ.get("TOKEN_JSON", "")
+          if not token_json:
+              raise SystemExit("Missing token JSON from refresh step.")
+          data = json.loads(token_json)
+          expires_in = data.get("expires_in")
+          print(f"Token expires_in: {expires_in} seconds")
+          PY
       - name: Clear playback
         env:
           TRAKT_CLIENT_ID: ${{ secrets.TRAKT_CLIENT_ID }}
