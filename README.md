@@ -18,6 +18,20 @@ Imposta questi secrets nel repository:
 - `TRAKT_REFRESH_TOKEN`
 - `TRAKT_REDIRECT_URI` (opzionale, solo se non usi `urn:ietf:wg:oauth:2.0:oob`)
 
+### Dove impostare i secrets su GitHub
+1) Apri il repository su GitHub.
+2) Vai su `Settings` → `Secrets and variables` → `Actions`.
+3) Clicca `New repository secret` e aggiungi i valori richiesti.
+
+Suggerimento: puoi rimuovere eventuali secrets non usati dal workflow per
+ridurre confusione e superficie di rischio.
+
+### Avvio e pianificazione del workflow
+- Avvio manuale: `Actions` → `Trakt Playback Cleaner` → `Run workflow`.
+- Pianificazione: è definita nel file
+  `.github/workflows/trakt-playback-cleaner.yml` con cron ogni 30 minuti.
+  Se non vuoi la schedulazione, rimuovi o commenta la sezione `schedule`.
+
 ### Come ottenere un refresh token
 1) Crea o apri la tua app Trakt:
    `https://trakt.tv/oauth/applications`
@@ -47,6 +61,8 @@ Nella risposta trovi `refresh_token`. Usa quel valore per il secret
 `TRAKT_REFRESH_TOKEN`.
 
 Nota: la `redirect_uri` deve essere la stessa usata durante l'autorizzazione.
+Se aggiorni il refresh token, ricordati di aggiornare anche il secret
+`TRAKT_REFRESH_TOKEN` su GitHub.
 
 ## Uso locale (opzionale)
 Installazione dipendenze:
