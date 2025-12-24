@@ -1,59 +1,54 @@
 name: Refresh Trakt Token
 
 on:
-  workflow_dispatch:
   schedule:
-    # Esegui ogni 6 giorni (il token dura 7 giorni)
-    - cron: "0 2 */6 * *"
+    - cron: '0 */12 * * *'  # Ogni 12 ore; modifica, se necessario
+  workflow_dispatch:
 
 jobs:
-  refresh-token:
+  refresh:
     runs-on: ubuntu-latest
+    outputs:
+      new_access_token: ${{ steps.get-tokens.outputs.new_access_token }}
+      new_refresh_token: ${{ steps.get-tokens.outputs.new_refresh_token }}
+
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
         with:
-          python-version: "3.11"
+          python-version: '3.x'
+
       - name: Install dependencies
         run: |
-          python -m pip install --upgrade pip
-          pip install -r requirements.txt
-      - name: Refresh access token
-        id: refresh
+          pip install requests jq
+
+      - name: Get new tokens
+        id: get-tokens
         env:
           TRAKT_CLIENT_ID: ${{ secrets.TRAKT_CLIENT_ID }}
           TRAKT_CLIENT_SECRET: ${{ secrets.TRAKT_CLIENT_SECRET }}
           TRAKT_REFRESH_TOKEN: ${{ secrets.TRAKT_REFRESH_TOKEN }}
-          TRAKT_REDIRECT_URI: ${{ secrets.TRAKT_REDIRECT_URI }}
-        run: python refresh_token.py
-      - name: Update tokens in secrets
+        run: |
+          python refresh_token.py > tokens.json
+          NEW_ACCESS_TOKEN=$(jq -r '.access_token' tokens.json)
+          NEW_REFRESH_TOKEN=$(jq -r '.refresh_token' tokens.json)
+          echo "Nuovo Access Token: $NEW_ACCESS_TOKEN"
+          echo "Nuovo Refresh Token: $NEW_REFRESH_TOKEN"
+          # Imposta gli output tramite il file d'ambiente
+          echo "new_access_token=$NEW_ACCESS_TOKEN" >> $GITHUB_OUTPUT
+          echo "new_refresh_token=$NEW_REFRESH_TOKEN" >> $GITHUB_OUTPUT
+
+      - name: Update TRAKT_ACCESS_TOKEN secret using GitHub CLI
         env:
           GH_TOKEN: ${{ secrets.GH_PAT }}
-          NEW_ACCESS_TOKEN: ${{ steps.refresh.outputs.access_token }}
-          NEW_REFRESH_TOKEN: ${{ steps.refresh.outputs.refresh_token }}
         run: |
-          if [ -z "$GH_TOKEN" ]; then
-            echo "Missing GH_PAT secret." >&2
-            exit 1
-          fi
-          if [ -z "$NEW_ACCESS_TOKEN" ] || [ -z "$NEW_REFRESH_TOKEN" ]; then
-            echo "Missing token outputs." >&2
-            exit 1
-          fi
-          echo -n "$NEW_ACCESS_TOKEN" | gh secret set TRAKT_ACCESS_TOKEN --app actions --repo "$GITHUB_REPOSITORY" --body -
-          echo -n "$NEW_REFRESH_TOKEN" | gh secret set TRAKT_REFRESH_TOKEN --app actions --repo "$GITHUB_REPOSITORY" --body -
-          echo "Updated TRAKT_ACCESS_TOKEN and TRAKT_REFRESH_TOKEN secrets."
-      - name: Log token expiry
+          gh secret set TRAKT_ACCESS_TOKEN --body "${{ steps.get-tokens.outputs.new_access_token }}"
+
+      - name: Update TRAKT_REFRESH_TOKEN secret using GitHub CLI
         env:
-          TOKEN_JSON: ${{ steps.refresh.outputs.token_json }}
+          GH_TOKEN: ${{ secrets.GH_PAT }}
         run: |
-          python - <<'PY'
-          import json
-          import os
-          token_json = os.environ.get("TOKEN_JSON", "")
-          if not token_json:
-              raise SystemExit("Missing token JSON from refresh step.")
-          data = json.loads(token_json)
-          expires_in = data.get("expires_in")
-          print(f"Token expires_in: {expires_in} seconds (~{expires_in/86400:.1f} days)")
-          PY
+          gh secret set TRAKT_REFRESH_TOKEN --body "${{ steps.get-tokens.outputs.new_refresh_token }}"
